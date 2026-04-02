@@ -1,22 +1,27 @@
 const { app, BrowserWindow } = require("electron");
 const path = require("path");
 
-// 🔥 Start your backend (Jarvis brain)
-require("../index.js");
+require("../index.js"); // backend
 
 function createWindow() {
   const win = new BrowserWindow({
     width: 900,
     height: 700,
-    frame: false, // 🔥 clean futuristic UI
-    transparent: true,
+    backgroundColor: "#000000", // IMPORTANT (fix blank screen)
     webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
-      contextIsolation: true
+      contextIsolation: true,
+      preload: path.join(__dirname, "preload.js")
     }
   });
 
-  win.loadFile(path.join(__dirname, "../renderer/index.html"));
+  const filePath = path.join(__dirname, "../renderer/dist/index.html");
+
+  console.log("Loading UI from:", filePath); // DEBUG
+
+  win.loadFile(filePath);
+
+  // 🔥 ALWAYS OPEN DEVTOOLS FOR NOW
+  win.webContents.openDevTools();
 }
 
 app.whenReady().then(createWindow);
