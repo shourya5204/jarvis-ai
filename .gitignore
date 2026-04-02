@@ -1,0 +1,9 @@
+node_modules/
+.env
+*.wav
+*.mp3
+voice-env/
+vision-env/
+models/
+model_wake/
+jarvis-clean/
