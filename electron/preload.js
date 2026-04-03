@@ -10,4 +10,18 @@ contextBridge.exposeInMainWorld("jarvis", {
       callback(data);
     });
   },
+
+  // 🔥 ADD THIS (YOUR ERROR FIX)
+  saveConfig: (data) => {
+    ipcRenderer.send("save-config", data);
+  },
+
+  getConfig: () => {
+    return ipcRenderer.invoke("get-config");
+  },
+
+  // 🔥 ADD THIS
+  resetConfig: () => {
+    ipcRenderer.send("reset-config");
+  }
 });

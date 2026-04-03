@@ -6,7 +6,21 @@ const { speak } = require("./utils/speaker");
 const { createListener } = require("./input/cli");
 const { sendToUI } = require("./utils/uiEmitter");
 const { generateSpeech } = require("./ai/speechFormatter"); // 🔥 NEW
-require("dotenv").config();
+
+
+const { loadConfig } = require("./utils/configStore");
+
+const config = loadConfig();
+
+if (config) {
+  process.env.GROQ_API_KEY = config.GROQ_API_KEY;
+  process.env.GEMINI_API_KEY = config.GEMINI_API_KEY;
+}
+
+console.log("GROQ:", process.env.GROQ_API_KEY ? "Loaded" : "Missing");
+
+
+
 
 // 🔍 API STATUS CHECK
 console.log("GROQ KEY:", process.env.GROQ_API_KEY ? "Loaded" : "Missing");
@@ -62,6 +76,8 @@ async function startListening() {
   console.log("🎤 Listening triggered from UI");
   await listener();
 }
+
+console.log("GROQ:", process.env.GROQ_API_KEY);
 
 module.exports = { startListening };
 

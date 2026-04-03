@@ -1,29 +1,51 @@
 {
   "name": "jarvis-ai",
   "version": "1.0.0",
-  "description": "Jarvis AI Desktop Assistant",
+  "author": "Shourya Pratap Singh Chouhan",
+  "description": "Jarvis Desktop Assistant",
   "main": "electron/main.js",
   "scripts": {
     "start": "electron .",
-    "dev": "electron ."
+    "build": "cd renderer && npm run build",
+    "dist": "npm run build && electron-builder"
   },
-  "keywords": [],
-  "author": "Shourya",
-  "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
-    "@google/genai": "^1.47.0",
+    "@google/genai": "^1.48.0",
+    "@google/generative-ai": "^0.24.1",
     "axios": "^1.14.0",
-    "chalk": "^4.1.2",
-    "dotenv": "^17.3.1",
-    "form-data": "^4.0.5",
-    "framer-motion": "^12.38.0",
+    "dotenv": "^17.0.0",
     "groq-sdk": "^1.1.2",
-    "puppeteer": "^24.40.0",
-    "three": "^0.183.2",
-    "yt-search": "^2.13.1"
+    "openai": "^6.33.0",
+    "yt-search": "^2.10.4"
   },
   "devDependencies": {
-    "electron": "^41.1.1"
+    "electron": "^30.0.0",
+    "electron-builder": "^24.0.0"
+  },
+  "build": {
+    "appId": "com.jarvis.ai",
+    "productName": "Jarvis",
+    "directories": {
+      "output": "dist-app"
+    },
+    "files": [
+      "electron/**/*",
+      "renderer/dist/**/*",
+      "index.js",
+      "router/**/*",
+      "utils/**/*",
+      "input/**/*",
+      "ai/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/icon.icns"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    }
   }
 }
