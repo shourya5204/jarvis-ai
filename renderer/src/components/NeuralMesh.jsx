@@ -1,7 +1,13 @@
 import { useEffect, useRef } from "react";
 
-export default function NeuralMesh() {
+export default function NeuralMesh({ status = "idle" }) {
   const canvasRef = useRef(null);
+  const statusRef = useRef(status);
+
+  // 🔥 keep status updated
+  useEffect(() => {
+    statusRef.current = status;
+  }, [status]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -41,7 +47,13 @@ export default function NeuralMesh() {
     });
 
     const draw = () => {
-      // SAME WHITE BACKGROUND
+      const currentStatus = statusRef.current;
+
+      const speed =
+        currentStatus === "listening" ? 1.2 :
+        currentStatus === "processing" ? 0.6 :
+        0.2;
+
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, w, h);
 
@@ -49,6 +61,10 @@ export default function NeuralMesh() {
       for (const n of nodes) {
         n.x += n.vx;
         n.y += n.vy;
+
+        // 🔥 dynamic motion based on state
+        n.vx += (Math.random() - 0.5) * 0.05 * speed;
+        n.vy += (Math.random() - 0.5) * 0.05 * speed;
 
         const dx = n.x - CENTER_X;
         const dy = n.y - CENTER_Y;
@@ -71,7 +87,12 @@ export default function NeuralMesh() {
           const dist = Math.sqrt(dx * dx + dy * dy);
 
           if (dist < MAX_DIST) {
-            const alpha = (1 - dist / MAX_DIST) * 0.35;
+            const baseAlpha =
+              currentStatus === "listening" ? 0.9 :
+              currentStatus === "processing" ? 0.6 :
+              0.35;
+
+            const alpha = (1 - dist / MAX_DIST) * baseAlpha;
 
             ctx.beginPath();
             ctx.strokeStyle = `rgba(0,0,0,${alpha})`;
@@ -102,13 +123,25 @@ export default function NeuralMesh() {
     };
   }, []);
 
-  return (
-    <main className="w-screen h-screen overflow-hidden bg-white">
-      <canvas
-        ref={canvasRef}
-        className="w-full h-full"
-        aria-label="Neural mesh background"
-      />
-    </main>
-  );
+
+return (
+  <main
+    className="w-screen h-screen overflow-hidden bg-white"
+    style={{
+      transform: status === "listening" ? "scale(1.12)" : "scale(1)",
+      transformOrigin: "center center",
+      filter: status === "listening" ? "brightness(0.98)" : "brightness(1)",
+      transition: "all 0.35s cubic-bezier(0.22, 1, 0.36, 1)"
+    }}
+  >
+    <canvas
+      ref={canvasRef}
+      className="w-full h-full"
+      aria-label="Neural mesh background"
+    />
+  </main>
+);
+
+
+
 }

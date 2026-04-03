@@ -2,7 +2,7 @@ const readline = require("readline");
 const { recordAudio, stopRecording, transcribeAudio } = require("./voice");
 const { isSpeaking } = require("../utils/speaker");
 const { mute, unmute, getVolume, setVolume } = require("../utils/audioControl");
-
+const { sendToUI } = require("../utils/uiEmitter");
 function sleep(ms) {
   return new Promise(res => setTimeout(res, ms));
 }
@@ -19,6 +19,7 @@ function createListener(onInput) {
 
     // 🎤 START RECORDING
     if (!isRecording) {
+      sendToUI({ status: "listening" });
       console.log("🎤 Recording... (press ENTER to stop)");
 
       originalVolume = getVolume();
@@ -32,6 +33,7 @@ function createListener(onInput) {
 
     // 🛑 STOP RECORDING
     else {
+      sendToUI({ status: "processing" });
       console.log("⏹️ Processing...");
       isRecording = false;
 
@@ -59,7 +61,7 @@ function createListener(onInput) {
         console.log("Command:", command);
 
         await onInput(command);
-
+        sendToUI({ status: "idle" });
         console.log("\nJARVIS: Ready (press ENTER)\n");
 
       } catch (err) {

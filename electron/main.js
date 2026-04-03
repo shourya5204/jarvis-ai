@@ -19,15 +19,14 @@ function createWindow() {
   console.log("Loading UI from:", filePath); // DEBUG
 
   win.loadFile(filePath);
-
+  const { setWindow } = require("../utils/uiEmitter");
+  setWindow(win);
   // 🔥 ALWAYS OPEN DEVTOOLS FOR NOW
   win.webContents.openDevTools();
 
 
 
-  ipcMain.on("start-listening", async () => {
-  console.log("🎤 UI triggered");
-
+ipcMain.on("start-listening", async () => {
   const { startListening } = require("../index");
   await startListening();
 });

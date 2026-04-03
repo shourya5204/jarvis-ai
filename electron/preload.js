@@ -4,4 +4,10 @@ contextBridge.exposeInMainWorld("jarvis", {
   startListening: () => {
     ipcRenderer.send("start-listening");
   },
+
+  onStateChange: (callback) => {
+    ipcRenderer.on("jarvis-state-update", (_, data) => {
+      callback(data);
+    });
+  },
 });

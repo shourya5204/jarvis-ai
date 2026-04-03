@@ -4,6 +4,7 @@ const { route } = require("./router/router");
 const { jarvisLog } = require("./utils/logger");
 const { speak } = require("./utils/speaker");
 const { createListener } = require("./input/cli");
+const { sendToUI } = require("./utils/uiEmitter");
 const { generateSpeech } = require("./ai/speechFormatter"); // 🔥 NEW
 require("dotenv").config();
 
