@@ -1,64 +1,85 @@
-const puppeteer = require("puppeteer");
+const { exec } = require("child_process");
+const yts = require("yt-search");
 
-let browser = null;
-let page = null;
+const JARVIS_PROFILE_PATH = "/tmp/jarvis-brave-profile";
 
-async function getPage() {
-  if (!browser) {
-    browser = await puppeteer.launch({
-      headless: false,
-      defaultViewport: null,
-      args: ["--start-maximized"]
-    });
+let browserStarted = false;
 
-    page = await browser.newPage();
-  }
+// 🧠 Start isolated Brave instance
+function startJarvisBrowser() {
+  if (browserStarted) return;
 
-  return page;
+  exec(`
+  open -na "Brave Browser" --args \
+  --user-data-dir="${JARVIS_PROFILE_PATH}" \
+  --new-window
+  `);
+
+  browserStarted = true;
 }
 
 // 🎬 PLAY YOUTUBE
 async function playYouTube(query) {
-  const page = await getPage();
-
-  const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
-  await page.goto(url);
-
-  await page.waitForSelector("ytd-video-renderer");
-
-  const video = await page.$("ytd-video-renderer a#thumbnail");
+  const results = await yts(query);
+  const video = results.videos[0];
 
   if (!video) throw new Error("No video found");
 
-  await video.click();
+  const url = video.url;
+
+  startJarvisBrowser();
+
+  setTimeout(() => {
+    exec(`
+    osascript -e '
+    tell application "Brave Browser"
+      activate
+
+      tell front window
+        if (count of tabs) = 0 then
+          make new tab with properties {URL:"${url}"}
+        else
+          set URL of active tab to "${url}"
+        end if
+      end tell
+
+    end tell'
+    `);
+  }, 800);
+
+  return video.title;
 }
 
 // 🌐 OPEN YOUTUBE
 async function openYouTube() {
-  const page = await getPage();
-  await page.goto("https://youtube.com");
+  startJarvisBrowser();
+
+  setTimeout(() => {
+    exec(`
+    osascript -e '
+    tell application "Brave Browser"
+      activate
+      tell front window
+        set URL of active tab to "https://youtube.com"
+      end tell
+    end tell'
+    `);
+  }, 800);
 }
 
-// ❌ CLOSE TAB (FIXED)
+// ❌ CLOSE TAB
 async function closeTab() {
-  if (!browser || !page) return;
-
-  try {
-    const pages = await browser.pages();
-
-    if (pages.length > 1) {
-      await page.close();
-
-      const remaining = await browser.pages();
-      page = remaining[0];
-    } else {
-      // instead of closing last tab → reset
-      await page.goto("about:blank");
-    }
-
-  } catch (err) {
-    console.log("Close tab error:", err);
-  }
+  exec(`
+  osascript -e '
+  tell application "Brave Browser"
+    activate
+    tell front window to close active tab
+  end tell'
+  `);
 }
 
-module.exports = { playYouTube, openYouTube, closeTab };
+module.exports = {
+  playYouTube,
+  openYouTube,
+  closeTab,
+};
