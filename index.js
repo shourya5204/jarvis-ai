@@ -3,6 +3,7 @@ const { parseIntent } = require("./ai/aiParser");
 const { route } = require("./router/router");
 const { jarvisLog } = require("./utils/logger");
 const { speak } = require("./utils/speaker");
+const { createListener } = require("./input/cli");
 const { generateSpeech } = require("./ai/speechFormatter"); // 🔥 NEW
 require("dotenv").config();
 
@@ -52,5 +53,16 @@ async function handleInput(input) {
   }
 }
 
+
+
+const listener = createListener(handleInput);
+
+async function startListening() {
+  console.log("🎤 Listening triggered from UI");
+  await listener();
+}
+
+module.exports = { startListening };
+
 // 🚀 START CLI
-startCLI(handleInput);
+//startCLI(handleInput);

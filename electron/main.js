@@ -1,6 +1,6 @@
 const { app, BrowserWindow } = require("electron");
 const path = require("path");
-
+const { ipcMain } = require("electron");
 require("../index.js"); // backend
 
 function createWindow() {
@@ -22,6 +22,17 @@ function createWindow() {
 
   // 🔥 ALWAYS OPEN DEVTOOLS FOR NOW
   win.webContents.openDevTools();
+
+
+
+  ipcMain.on("start-listening", async () => {
+  console.log("🎤 UI triggered");
+
+  const { startListening } = require("../index");
+  await startListening();
+});
+
+
 }
 
 app.whenReady().then(createWindow);

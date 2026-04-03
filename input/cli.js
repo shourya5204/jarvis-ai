@@ -7,32 +7,23 @@ function sleep(ms) {
   return new Promise(res => setTimeout(res, ms));
 }
 
-function startCLI(onInput) {
-
-  console.log("JARVIS: Press ENTER to speak\n");
+// 🔥 SHARED LISTENER FACTORY (NEW)
+function createListener(onInput) {
 
   let isRecording = false;
   const audioFile = "ptt.wav";
-
   let originalVolume = null;
 
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
-
-  async function toggleRecording() {
+  return async function toggleRecording() {
     if (isSpeaking) return;
 
     // 🎤 START RECORDING
     if (!isRecording) {
       console.log("🎤 Recording... (press ENTER to stop)");
 
-      // 🔥 SAVE + MUTE FIRST
       originalVolume = getVolume();
       mute();
 
-      // ⏳ allow system audio to stop
       await sleep(200);
 
       isRecording = true;
@@ -46,9 +37,8 @@ function startCLI(onInput) {
 
       stopRecording();
 
-      await sleep(500); // allow file to finalize
+      await sleep(500);
 
-      // 🔊 RESTORE AUDIO BEFORE PROCESSING
       if (originalVolume !== null) {
         unmute();
         setVolume(originalVolume);
@@ -76,9 +66,21 @@ function startCLI(onInput) {
         console.log("Error:", err.message);
       }
     }
-  }
+  };
+}
+
+// 🖥️ CLI (UNCHANGED BEHAVIOR)
+function startCLI(onInput) {
+  console.log("JARVIS: Press ENTER to speak\n");
+
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+
+  const toggleRecording = createListener(onInput);
 
   rl.on("line", toggleRecording);
 }
 
-module.exports = { startCLI };
+module.exports = { startCLI, createListener };

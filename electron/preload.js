@@ -1,5 +1,7 @@
-const { contextBridge } = require("electron");
+const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("jarvis", {
-  send: (msg) => console.log("UI →", msg)
+  startListening: () => {
+    ipcRenderer.send("start-listening");
+  },
 });
